@@ -199,12 +199,24 @@ export default function Home() {
             <p className="text-white/90 text-sm line-clamp-2">{currentVideo.title}</p>
           )}
 
-          {/* View Details Button */}
-          <Link href={`/restaurant/${restaurant.id}`}>
-            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
-              View Details
-            </Button>
-          </Link>
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(restaurant.address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1"
+            >
+              <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                🚶 Navigate Now
+              </Button>
+            </a>
+            <Link href={`/restaurant/${restaurant.id}`} className="flex-1">
+              <Button variant="outline" className="w-full bg-white/10 backdrop-blur-sm text-white border-white/20 hover:bg-white/20 font-semibold">
+                View Details
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 

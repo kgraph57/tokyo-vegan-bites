@@ -188,14 +188,24 @@ export default function RestaurantDetail() {
             <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div>
               <p className="text-sm">{restaurant.address}</p>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-primary hover:underline inline-flex items-center gap-1 mt-1"
-              >
-                Open in Google Maps <ExternalLink className="h-3 w-3" />
-              </a>
+              <div className="flex gap-2 mt-2">
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(restaurant.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+                >
+                  🚶 Navigate Now
+                </a>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 border border-border rounded-md text-sm hover:bg-accent transition-colors"
+                >
+                  View on Map <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
             </div>
           </div>
 
