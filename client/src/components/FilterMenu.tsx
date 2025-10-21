@@ -16,6 +16,7 @@ export interface FilterState {
   cuisines: string[];
   veganLevels: string[];
   priceRanges: string[];
+  openNow: boolean;
 }
 
 const AREAS = [
@@ -42,6 +43,7 @@ export default function FilterMenu({ isOpen, onClose, onFilterChange }: FilterMe
     cuisines: [],
     veganLevels: [],
     priceRanges: [],
+    openNow: false,
   });
 
   const handleCheckboxChange = (category: keyof FilterState, value: string) => {
@@ -49,14 +51,20 @@ export default function FilterMenu({ isOpen, onClose, onFilterChange }: FilterMe
       const newFilters = { ...prev };
       const currentValues = newFilters[category];
       
-      if (currentValues.includes(value)) {
-        newFilters[category] = currentValues.filter(v => v !== value);
-      } else {
-        newFilters[category] = [...currentValues, value];
+      if (Array.isArray(currentValues)) {
+        if (currentValues.includes(value)) {
+          newFilters[category] = currentValues.filter(v => v !== value) as any;
+        } else {
+          newFilters[category] = [...currentValues, value] as any;
+        }
       }
       
       return newFilters;
     });
+  };
+
+  const handleOpenNowChange = (checked: boolean) => {
+    setFilters(prev => ({ ...prev, openNow: checked }));
   };
 
   const handleApply = () => {
@@ -70,12 +78,13 @@ export default function FilterMenu({ isOpen, onClose, onFilterChange }: FilterMe
       cuisines: [],
       veganLevels: [],
       priceRanges: [],
+      openNow: false,
     };
     setFilters(emptyFilters);
     onFilterChange(emptyFilters);
   };
 
-  const hasActiveFilters = Object.values(filters).some(arr => arr.length > 0);
+  const hasActiveFilters = filters.areas.length > 0 || filters.cuisines.length > 0 || filters.veganLevels.length > 0 || filters.priceRanges.length > 0 || filters.openNow;
 
   if (!isOpen) return null;
 
@@ -173,6 +182,23 @@ export default function FilterMenu({ isOpen, onClose, onFilterChange }: FilterMe
                       </Label>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Open Now Filter */}
+              <div>
+                <div className="flex items-center space-x-2 p-3 bg-primary/5 rounded-lg">
+                  <Checkbox
+                    id="open-now"
+                    checked={filters.openNow}
+                    onCheckedChange={handleOpenNowChange}
+                  />
+                  <Label 
+                    htmlFor="open-now"
+                    className="text-sm font-semibold cursor-pointer flex-1"
+                  >
+                    🕐 Open Now (11:00-22:00)
+                  </Label>
                 </div>
               </div>
 

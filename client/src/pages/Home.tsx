@@ -121,6 +121,16 @@ export default function Home() {
             variant="ghost"
             size="icon"
             className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+            onClick={() => {
+              const url = `${window.location.origin}/restaurant/${restaurant.id}`;
+              const text = `Check out ${restaurant.name} on Tokyo Vegan Bites!`;
+              if (navigator.share) {
+                navigator.share({ title: restaurant.name, text, url });
+              } else {
+                navigator.clipboard.writeText(url);
+                alert('Link copied to clipboard!');
+              }
+            }}
           >
             <Share2 className="h-6 w-6" />
           </Button>

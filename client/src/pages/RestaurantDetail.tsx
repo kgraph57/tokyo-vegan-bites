@@ -2,7 +2,7 @@ import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, MapPin, Clock, Phone, Globe, Instagram, Heart, ExternalLink } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Phone, Globe, Instagram, Heart, ExternalLink, Share2 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -94,8 +94,25 @@ export default function RestaurantDetail() {
           </Link>
         </div>
 
-        {/* Bookmark Button */}
-        <div className="absolute top-4 right-4">
+        {/* Action Buttons */}
+        <div className="absolute top-4 right-4 flex gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="bg-black/30 backdrop-blur-sm hover:bg-black/50"
+            onClick={() => {
+              const url = `${window.location.origin}/restaurant/${restaurant.id}`;
+              const text = `Check out ${restaurant.name} on Tokyo Vegan Bites!`;
+              if (navigator.share) {
+                navigator.share({ title: restaurant.name, text, url });
+              } else {
+                navigator.clipboard.writeText(url);
+                alert('Link copied to clipboard!');
+              }
+            }}
+          >
+            <Share2 className="h-5 w-5 text-white" />
+          </Button>
           <Button
             variant="ghost"
             size="icon"

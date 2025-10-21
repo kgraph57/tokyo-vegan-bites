@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Icon } from "leaflet";
@@ -26,9 +26,39 @@ export default function Browse() {
     cuisines: [] as string[],
     veganLevels: [] as string[],
     priceRanges: [] as string[],
+    openNow: false,
   });
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [sortByDistance, setSortByDistance] = useState(false);
 
   const { data: restaurants, isLoading } = trpc.restaurants.list.useQuery();
+
+  // Get user location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([position.coords.latitude, position.coords.longitude]);
+        },
+        (error) => {
+          console.log('Location access denied:', error);
+        }
+      );
+    }
+  }, []);
+
+  // Calculate distance between two coordinates (Haversine formula)
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
 
   // Filter restaurants based on selected filters
   const filteredRestaurants = useMemo(() => {
@@ -57,6 +87,19 @@ export default function Browse() {
         return false;
       }
 
+      // Open now filter
+      if (filters.openNow) {
+        const now = new Date();
+        const currentDay = now.getDay(); // 0 = Sunday, 6 = Saturday
+        const currentHour = now.getHours();
+        
+        // Simple check: assume most restaurants open 11:00-22:00
+        // In real app, parse restaurant.hours properly
+        if (currentHour < 11 || currentHour >= 22) {
+          return false;
+        }
+      }
+
       // Price range filter
       if (filters.priceRanges.length > 0 && restaurant.priceRange && !filters.priceRanges.includes(restaurant.priceRange)) {
         return false;
@@ -66,8 +109,41 @@ export default function Browse() {
     });
   }, [restaurants, filters]);
 
-  // Calculate map center (Tokyo center)
-  const mapCenter: [number, number] = [35.6762, 139.6503];
+  // Sort by distance if enabled
+  const sortedRestaurants = useMemo(() => {
+    if (!sortByDistance || !userLocation) return filteredRestaurants;
+
+    return [...filteredRestaurants].sort((a, b) => {
+      // Parse coordinates from address (simplified - in real app, store lat/lng in DB)
+      // For demo, use approximate Tokyo coordinates
+      const coordsMap: Record<string, [number, number]> = {
+        'Shibuya': [35.6595, 139.7004],
+        'Shinjuku': [35.6938, 139.7034],
+        'Omotesando': [35.6652, 139.7124],
+        'Tokyo Station': [35.6812, 139.7671],
+        'Jiyugaoka': [35.6078, 139.6678],
+        'Nishi-Nippori': [35.7319, 139.7671],
+      };
+
+      const getCoords = (address: string): [number, number] => {
+        for (const [area, coords] of Object.entries(coordsMap)) {
+          if (address.includes(area)) return coords;
+        }
+        return [35.6762, 139.6503]; // Tokyo center default
+      };
+
+      const coordsA = getCoords(a.address);
+      const coordsB = getCoords(b.address);
+
+      const distA = calculateDistance(userLocation[0], userLocation[1], coordsA[0], coordsA[1]);
+      const distB = calculateDistance(userLocation[0], userLocation[1], coordsB[0], coordsB[1]);
+
+      return distA - distB;
+    });
+  }, [filteredRestaurants, sortByDistance, userLocation]);
+
+  // Calculate map center (user location or Tokyo center)
+  const mapCenter: [number, number] = userLocation || [35.6762, 139.6503];
 
   if (isLoading) {
     return (
@@ -83,7 +159,16 @@ export default function Browse() {
       <div className="absolute top-0 left-0 right-0 z-20 bg-white/95 dark:bg-black/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between p-4">
           <h1 className="text-xl font-bold text-foreground">Browse Restaurants</h1>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            {userLocation && (
+              <Button
+                variant={sortByDistance ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSortByDistance(!sortByDistance)}
+              >
+                📍 Near Me
+              </Button>
+            )}
             <Button
               variant={viewMode === "map" ? "default" : "outline"}
               size="sm"
@@ -131,7 +216,7 @@ export default function Browse() {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {filteredRestaurants.map((restaurant) => {
+            {sortedRestaurants.map((restaurant) => {
               const lat = parseFloat(restaurant.lat);
               const lng = parseFloat(restaurant.lng);
               
@@ -176,7 +261,7 @@ export default function Browse() {
         ) : (
           <div className="h-full overflow-y-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredRestaurants.map((restaurant) => {
+              {sortedRestaurants.map((restaurant) => {
                 const cuisineTypes = JSON.parse(restaurant.cuisineTypes || "[]");
                 
                 return (
@@ -216,7 +301,7 @@ export default function Browse() {
                 );
               })}
             </div>
-            {filteredRestaurants.length === 0 && (
+            {sortedRestaurants.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">No restaurants match your filters</p>
               </div>
