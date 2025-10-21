@@ -14,6 +14,7 @@ export default function RestaurantDetail() {
   const { data: restaurant, isLoading } = trpc.restaurants.getById.useQuery({ id: restaurantId });
   const { data: videos } = trpc.videos.getByRestaurantId.useQuery({ restaurantId });
   const { data: reviews } = trpc.reviews.getByRestaurantId.useQuery({ restaurantId });
+  const { data: menuItems } = trpc.menuItems.getByRestaurantId.useQuery({ restaurantId });
   const { data: isBookmarked } = trpc.bookmarks.check.useQuery(
     { restaurantId },
     { enabled: !!user }
@@ -78,7 +79,7 @@ export default function RestaurantDetail() {
       {/* Header with Image */}
       <div className="relative h-64 bg-gradient-to-b from-black/20 to-black/60">
         <img
-          src={`https://picsum.photos/seed/${restaurant.id}/800/400`}
+          src={restaurant.heroImage || `https://picsum.photos/seed/${restaurant.id}/800/400`}
           alt={restaurant.name}
           className="w-full h-full object-cover"
         />
@@ -215,6 +216,56 @@ export default function RestaurantDetail() {
             </div>
           )}
         </Card>
+
+        {/* Menu */}
+        {menuItems && menuItems.length > 0 && (
+          <div>
+            <h3 className="font-semibold mb-3 text-lg">Menu</h3>
+            <div className="space-y-3">
+              {menuItems.map((item) => (
+                <Card key={item.id} className="p-4">
+                  <div className="flex gap-4">
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-24 h-24 rounded-lg object-cover"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-1">
+                        <div>
+                          <h4 className="font-semibold">{item.name}</h4>
+                          {item.nameJa && (
+                            <p className="text-sm text-muted-foreground">{item.nameJa}</p>
+                          )}
+                        </div>
+                        {item.price && (
+                          <span className="font-semibold text-primary">¥{item.price.toLocaleString()}</span>
+                        )}
+                      </div>
+                      {item.description && (
+                        <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
+                      )}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {item.category && (
+                          <span className="px-2 py-0.5 bg-secondary text-secondary-foreground rounded text-xs">
+                            {item.category}
+                          </span>
+                        )}
+                        {item.isVegan && (
+                          <span className="px-2 py-0.5 bg-green-500/10 text-green-700 dark:text-green-400 rounded text-xs">
+                            🌱 Vegan
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Videos */}
         {videos && videos.length > 0 && (

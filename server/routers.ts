@@ -80,6 +80,14 @@ export const appRouter = router({
       }),
   }),
 
+  menuItems: router({
+    getByRestaurantId: publicProcedure
+      .input(z.object({ restaurantId: z.string() }))
+      .query(async ({ input }) => {
+        return await db.getMenuItemsByRestaurantId(input.restaurantId);
+      }),
+  }),
+
   reviews: router({
     getByRestaurantId: publicProcedure
       .input(z.object({ restaurantId: z.string() }))

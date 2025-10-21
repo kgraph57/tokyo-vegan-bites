@@ -44,6 +44,7 @@ export const restaurants = mysqlTable("restaurants", {
   hours: text("hours"),
   description: text("description"),
   descriptionJa: text("descriptionJa"),
+  heroImage: varchar("heroImage", { length: 500 }), // Main restaurant image
   createdAt: timestamp("createdAt").defaultNow(),
   updatedAt: timestamp("updatedAt").defaultNow(),
 });
@@ -97,4 +98,25 @@ export const reviews = mysqlTable("reviews", {
 
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = typeof reviews.$inferInsert;
+
+/**
+ * Menu items table
+ */
+export const menuItems = mysqlTable("menuItems", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  restaurantId: varchar("restaurantId", { length: 64 }).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  nameJa: varchar("nameJa", { length: 255 }),
+  description: text("description"),
+  descriptionJa: text("descriptionJa"),
+  price: int("price"), // Price in yen
+  category: varchar("category", { length: 100 }), // "Main", "Side", "Dessert", "Drink"
+  image: varchar("image", { length: 500 }),
+  isVegan: boolean("isVegan").default(true),
+  allergens: text("allergens"), // JSON array: ["nuts", "soy"]
+  createdAt: timestamp("createdAt").defaultNow(),
+});
+
+export type MenuItem = typeof menuItems.$inferSelect;
+export type InsertMenuItem = typeof menuItems.$inferInsert;
 

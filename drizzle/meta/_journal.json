@@ -15,6 +15,13 @@
       "when": 1761035577562,
       "tag": "0001_naive_marvel_boy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1761040636498,
+      "tag": "0002_old_kree",
+      "breakpoints": true
     }
   ]
 }

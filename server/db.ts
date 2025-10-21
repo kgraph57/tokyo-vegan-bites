@@ -1,6 +1,6 @@
 import { eq, desc, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, restaurants, videos, bookmarks, reviews, Restaurant, Video } from "../drizzle/schema";
+import { InsertUser, users, restaurants, videos, bookmarks, reviews, menuItems, Restaurant, Video, MenuItem } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -218,6 +218,14 @@ export async function addReview(userId: string, restaurantId: string, rating: nu
   const id = `review-${userId}-${restaurantId}-${Date.now()}`;
   await db.insert(reviews).values({ id, userId, restaurantId, rating, comment });
   return { id, userId, restaurantId, rating, comment };
+}
+
+// Menu queries
+export async function getMenuItemsByRestaurantId(restaurantId: string): Promise<MenuItem[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(menuItems).where(eq(menuItems.restaurantId, restaurantId)).orderBy(menuItems.category, menuItems.name);
 }
 
 // Search restaurants with filters
