@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useSwipeable } from "react-swipeable";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Heart, Bookmark, Share2, MapPin, ChevronUp, ChevronDown } from "lucide-react";
@@ -19,6 +20,14 @@ export default function Home() {
       setCurrentIndex(currentIndex - 1);
     }
   };
+
+  // Swipe handlers
+  const swipeHandlers = useSwipeable({
+    onSwipedUp: () => handleScroll("down"),
+    onSwipedDown: () => handleScroll("up"),
+    preventScrollOnSwipe: true,
+    trackMouse: true,
+  });
 
   const handleBookmark = (restaurantId: string) => {
     bookmarkMutation.mutate({ restaurantId });
@@ -52,7 +61,7 @@ export default function Home() {
   }
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-black">
+    <div {...swipeHandlers} className="relative h-screen w-full overflow-hidden bg-black">
       {/* Video/Image Background */}
       <div className="absolute inset-0">
         <img
