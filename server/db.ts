@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, desc, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, restaurants, videos, bookmarks, reviews, Restaurant, Video } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -35,7 +35,7 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     };
     const updateSet: Record<string, unknown> = {};
 
-    const textFields = ["name", "email", "loginMethod"] as const;
+    const textFields = ["name", "email", "loginMethod", "dietaryRestrictions", "preferredLanguage"] as const;
     type TextField = (typeof textFields)[number];
 
     const assignNullable = (field: TextField) => {
@@ -85,4 +85,160 @@ export async function getUser(id: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Restaurant queries
+export async function getAllRestaurants(): Promise<Restaurant[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(restaurants).orderBy(restaurants.name);
+}
+
+export async function getRestaurantById(id: string): Promise<Restaurant | undefined> {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(restaurants).where(eq(restaurants.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getRestaurantsByVeganLevel(level: string): Promise<Restaurant[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(restaurants).where(eq(restaurants.veganLevel, level as any));
+}
+
+// Video queries
+export async function getAllVideos(): Promise<Video[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(videos).orderBy(desc(videos.createdAt));
+}
+
+export async function getVideosByRestaurantId(restaurantId: string): Promise<Video[]> {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(videos).where(eq(videos.restaurantId, restaurantId)).orderBy(desc(videos.createdAt));
+}
+
+// Bookmark queries
+export async function getUserBookmarks(userId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select({
+      bookmark: bookmarks,
+      restaurant: restaurants,
+    })
+    .from(bookmarks)
+    .leftJoin(restaurants, eq(bookmarks.restaurantId, restaurants.id))
+    .where(eq(bookmarks.userId, userId))
+    .orderBy(desc(bookmarks.createdAt));
+  
+  return result;
+}
+
+export async function addBookmark(userId: string, restaurantId: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const id = `bookmark-${userId}-${restaurantId}-${Date.now()}`;
+  await db.insert(bookmarks).values({ id, userId, restaurantId });
+  return { id, userId, restaurantId };
+}
+
+export async function removeBookmark(userId: string, restaurantId: string) {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(bookmarks).where(
+    and(
+      eq(bookmarks.userId, userId),
+      eq(bookmarks.restaurantId, restaurantId)
+    )
+  );
+}
+
+export async function isBookmarked(userId: string, restaurantId: string): Promise<boolean> {
+  const db = await getDb();
+  if (!db) return false;
+  
+  const result = await db
+    .select()
+    .from(bookmarks)
+    .where(
+      and(
+        eq(bookmarks.userId, userId),
+        eq(bookmarks.restaurantId, restaurantId)
+      )
+    )
+    .limit(1);
+  
+  return result.length > 0;
+}
+
+// Review queries
+export async function getRestaurantReviews(restaurantId: string) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  const result = await db
+    .select({
+      review: reviews,
+      user: users,
+    })
+    .from(reviews)
+    .leftJoin(users, eq(reviews.userId, users.id))
+    .where(eq(reviews.restaurantId, restaurantId))
+    .orderBy(desc(reviews.createdAt));
+  
+  return result;
+}
+
+export async function addReview(userId: string, restaurantId: string, rating: number, comment?: string) {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const id = `review-${userId}-${restaurantId}-${Date.now()}`;
+  await db.insert(reviews).values({ id, userId, restaurantId, rating, comment });
+  return { id, userId, restaurantId, rating, comment };
+}
+
+// Search restaurants with filters
+export async function searchRestaurants(filters: {
+  veganLevel?: string;
+  cuisineType?: string;
+  priceRange?: string;
+  features?: string[];
+}) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  let query = db.select().from(restaurants);
+  
+  // Note: For complex JSON filtering, we'd need to use SQL expressions
+  // For now, return all and filter in application code
+  const allRestaurants = await query;
+  
+  return allRestaurants.filter((r) => {
+    if (filters.veganLevel && r.veganLevel !== filters.veganLevel) return false;
+    if (filters.priceRange && r.priceRange !== filters.priceRange) return false;
+    
+    if (filters.cuisineType) {
+      const cuisineTypes = JSON.parse(r.cuisineTypes || "[]");
+      if (!cuisineTypes.includes(filters.cuisineType)) return false;
+    }
+    
+    if (filters.features && filters.features.length > 0) {
+      const restaurantFeatures = JSON.parse(r.features || "[]");
+      const hasAllFeatures = filters.features.every((f) => restaurantFeatures.includes(f));
+      if (!hasAllFeatures) return false;
+    }
+    
+    return true;
+  });
+}
+

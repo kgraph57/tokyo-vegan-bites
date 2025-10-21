@@ -43,8 +43,9 @@
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
+  /* Green theme for vegan/nature/health */
+  --primary: oklch(0.60 0.15 155); /* Fresh green #10B981 */
+  --primary-foreground: oklch(1 0 0);
   --sidebar-primary: var(--color-blue-600);
   --sidebar-primary-foreground: var(--color-blue-50);
   --chart-1: var(--color-blue-300);
@@ -168,5 +169,33 @@
       padding-right: 2rem;
       max-width: 1280px; /* Standard content width */
     }
+  }
+  
+  /* Video feed styles */
+  .video-feed {
+    @apply snap-y snap-mandatory overflow-y-scroll h-screen;
+    scroll-behavior: smooth;
+  }
+  
+  .video-card {
+    @apply snap-start snap-always h-screen w-full relative;
+  }
+  
+  /* Glassmorphism effect */
+  .glass {
+    @apply bg-white/80 dark:bg-black/80 backdrop-blur-md;
+  }
+  
+  /* Badge styles */
+  .badge-vegan {
+    @apply bg-primary/10 text-primary border border-primary/20;
+  }
+  
+  .badge-vegetarian {
+    @apply bg-secondary/10 text-secondary border border-secondary/20;
+  }
+  
+  .badge-warning {
+    @apply bg-accent/10 text-accent border border-accent/20;
   }
 }
