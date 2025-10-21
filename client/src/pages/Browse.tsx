@@ -157,8 +157,10 @@ export default function Browse() {
     <div className="relative h-screen w-full overflow-hidden bg-background">
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-20 bg-white/95 dark:bg-black/95 backdrop-blur-sm border-b border-border">
-        <div className="flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold text-foreground">Browse Restaurants</h1>
+        <div className="p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-foreground">Browse Restaurants</h1>
+          </div>
           <div className="flex gap-2 flex-wrap">
             {userLocation && (
               <Button
@@ -204,14 +206,41 @@ export default function Browse() {
       />
 
       {/* Main Content */}
-      <div className="pt-16 h-full pb-20">
+      <div className="pt-32 h-full pb-20">
         {viewMode === "map" ? (
-          <MapContainer
-            center={mapCenter}
-            zoom={12}
-            className="h-full w-full"
-            scrollWheelZoom={true}
-          >
+          <div className="relative h-full w-full">
+            {/* Cuisine Filter Overlay for Map */}
+            <div className="absolute top-4 left-4 z-[1000] bg-white/95 dark:bg-black/95 backdrop-blur-sm rounded-lg shadow-lg p-3">
+              <p className="text-xs font-semibold mb-2 text-foreground">Filter by Cuisine</p>
+              <div className="flex flex-wrap gap-2">
+                {['All', 'Ramen', 'Burger', 'Japanese', 'Cafe', 'Chinese', 'Italian', 'Thai'].map((cuisine) => (
+                  <Button
+                    key={cuisine}
+                    variant={filters.cuisines.length === 0 && cuisine === 'All' || filters.cuisines.includes(cuisine) ? "default" : "outline"}
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => {
+                      if (cuisine === 'All') {
+                        setFilters({ ...filters, cuisines: [] });
+                      } else {
+                        const newCuisines = filters.cuisines.includes(cuisine)
+                          ? filters.cuisines.filter(c => c !== cuisine)
+                          : [...filters.cuisines, cuisine];
+                        setFilters({ ...filters, cuisines: newCuisines });
+                      }
+                    }}
+                  >
+                    {cuisine}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <MapContainer
+              center={mapCenter}
+              zoom={12}
+              className="h-full w-full"
+              scrollWheelZoom={true}
+            >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -258,6 +287,7 @@ export default function Browse() {
               );
             })}
           </MapContainer>
+          </div>
         ) : (
           <div className="h-full overflow-y-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
