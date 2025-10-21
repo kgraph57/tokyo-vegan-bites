@@ -221,19 +221,9 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Navigation Hints */}
-      <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-4">
-        {currentIndex > 0 && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-white/20"
-            onClick={() => handleScroll("up")}
-          >
-            <ChevronUp className="h-6 w-6" />
-          </Button>
-        )}
-        {currentIndex < videos.length - 1 && (
+      {/* Navigation Hint - Down Only */}
+      {currentIndex < videos.length - 1 && (
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
           <Button
             variant="ghost"
             size="icon"
@@ -242,8 +232,8 @@ export default function Home() {
           >
             <ChevronDown className="h-6 w-6" />
           </Button>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Progress Indicator */}
       <div className="absolute top-20 right-4 z-20 text-white/60 text-xs font-medium">
