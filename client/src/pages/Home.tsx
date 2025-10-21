@@ -87,7 +87,7 @@ export default function Home() {
       </div>
 
       {/* Right Side Actions (TikTok-style) */}
-      <div className="absolute right-4 bottom-32 z-20 flex flex-col gap-6">
+      <div className="absolute right-4 bottom-32 z-30 flex flex-col gap-6">
         {/* Like Button */}
         <div className="flex flex-col items-center">
           <Button
