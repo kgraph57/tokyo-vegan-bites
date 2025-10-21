@@ -5,6 +5,7 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Heart, Bookmark, Share2, MapPin, ChevronUp, ChevronDown } from "lucide-react";
 import { APP_TITLE } from "@/const";
+import BottomNav from "@/components/BottomNav";
 
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -249,44 +250,8 @@ export default function Home() {
         {currentIndex + 1} / {videos.length}
       </div>
 
-      {/* Bottom Tab Bar */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 bg-black/80 backdrop-blur-md border-t border-white/10">
-        <div className="flex items-center justify-around py-3 px-4">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-white hover:text-primary">
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-              </svg>
-              <span className="text-xs">Home</span>
-            </Button>
-          </Link>
-          
-          <Link href="/browse">
-            <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-white/60 hover:text-primary">
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-              <span className="text-xs">Browse</span>
-            </Button>
-          </Link>
-
-          <Link href="/explore">
-            <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-white/60 hover:text-primary">
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
-              <span className="text-xs">AI Chat</span>
-            </Button>
-          </Link>
-
-          <Link href="/bookmarks">
-            <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-white/60 hover:text-primary">
-              <Bookmark className="h-6 w-6" />
-              <span className="text-xs">Saved</span>
-            </Button>
-          </Link>
-        </div>
-      </div>
+      {/* Bottom Navigation */}
+      <BottomNav />
 
       {/* Swipe Hint (shown on first load) */}
       {currentIndex === 0 && (

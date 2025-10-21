@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "wouter";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Icon } from "leaflet";
@@ -6,7 +6,8 @@ import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import FilterMenu from "@/components/FilterMenu";
-import { Home, MessageSquare, Bookmark, Map as MapIcon, Grid3x3 } from "lucide-react";
+import { Map as MapIcon, Grid3x3 } from "lucide-react";
+import BottomNav from "@/components/BottomNav";
 
 // Custom marker icon
 const veganIcon = new Icon({
@@ -340,38 +341,8 @@ export default function Browse() {
         )}
       </div>
 
-      {/* Bottom Tab Bar */}
-      <div className="absolute bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-black/95 backdrop-blur-md border-t border-border">
-        <div className="flex items-center justify-around py-3 px-4">
-          <Link href="/">
-            <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary">
-              <Home className="h-6 w-6" />
-              <span className="text-xs">Home</span>
-            </Button>
-          </Link>
-          
-          <Link href="/browse">
-            <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-primary">
-              <MapIcon className="h-6 w-6" />
-              <span className="text-xs">Browse</span>
-            </Button>
-          </Link>
-
-          <Link href="/explore">
-            <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary">
-              <MessageSquare className="h-6 w-6" />
-              <span className="text-xs">AI Chat</span>
-            </Button>
-          </Link>
-
-          <Link href="/bookmarks">
-            <Button variant="ghost" size="sm" className="flex flex-col items-center gap-1 text-muted-foreground hover:text-primary">
-              <Bookmark className="h-6 w-6" />
-              <span className="text-xs">Saved</span>
-            </Button>
-          </Link>
-        </div>
-      </div>
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

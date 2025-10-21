@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Send, Sparkles, MapPin } from "lucide-react";
 import { Link } from "wouter";
+import BottomNav from "@/components/BottomNav";
 
 export default function Explore() {
   const [query, setQuery] = useState("");
@@ -151,7 +152,7 @@ export default function Explore() {
       </div>
 
       {/* Input Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4">
+      <div className="fixed bottom-16 left-0 right-0 bg-background border-t p-4">
         <div className="container flex gap-2">
           <Input
             placeholder="Ask about vegan restaurants..."
@@ -165,6 +166,9 @@ export default function Explore() {
           </Button>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

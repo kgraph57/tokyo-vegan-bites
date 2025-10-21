@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, MapPin, Heart, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import BottomNav from "@/components/BottomNav";
 
 export default function Bookmarks() {
   const { user, loading } = useAuth();
@@ -163,6 +164,9 @@ export default function Bookmarks() {
           </div>
         )}
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }
