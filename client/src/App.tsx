@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -9,6 +10,7 @@ import RestaurantDetail from "./pages/RestaurantDetail";
 import Explore from "./pages/Explore";
 import Bookmarks from "./pages/Bookmarks";
 import Browse from "./pages/Browse";
+import Onboarding from "./components/Onboarding";
 
 function Router() {
   return (
@@ -25,12 +27,37 @@ function Router() {
 }
 
 function App() {
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [userPreferences, setUserPreferences] = useState<string[]>([]);
+
+  useEffect(() => {
+    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
+    const savedPreferences = localStorage.getItem('user_preferences');
+    
+    if (!hasCompletedOnboarding) {
+      setShowOnboarding(true);
+    } else if (savedPreferences) {
+      setUserPreferences(JSON.parse(savedPreferences));
+    }
+  }, []);
+
+  const handleOnboardingComplete = (preferences: string[]) => {
+    setUserPreferences(preferences);
+    localStorage.setItem('onboarding_completed', 'true');
+    localStorage.setItem('user_preferences', JSON.stringify(preferences));
+    setShowOnboarding(false);
+  };
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
-          <Router />
+          {showOnboarding ? (
+            <Onboarding onComplete={handleOnboardingComplete} />
+          ) : (
+            <Router />
+          )}
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>

@@ -4,12 +4,23 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, MapPin, Heart } from "lucide-react";
+import { ArrowLeft, MapPin, Heart, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Bookmarks() {
   const { user, loading } = useAuth();
   const { data: bookmarks, isLoading } = trpc.bookmarks.list.useQuery(undefined, {
     enabled: !!user,
+  });
+  const utils = trpc.useUtils();
+  const removeBookmark = trpc.bookmarks.remove.useMutation({
+    onSuccess: () => {
+      utils.bookmarks.list.invalidate();
+      toast.success("Removed from bookmarks");
+    },
+    onError: () => {
+      toast.error("Failed to remove bookmark");
+    },
   });
 
   if (loading || isLoading) {
@@ -91,15 +102,27 @@ export default function Bookmarks() {
               const cuisineTypes = JSON.parse(restaurant.cuisineTypes || "[]");
 
               return (
-                <Link key={bookmark.bookmark.id} href={`/restaurant/${restaurant.id}`}>
-                  <Card className="p-4 hover:shadow-lg transition-shadow cursor-pointer">
+                <Card key={bookmark.bookmark.id} className="p-4 hover:shadow-lg transition-shadow relative">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 h-8 w-8 text-muted-foreground hover:text-destructive z-10"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeBookmark.mutate({ restaurantId: restaurant.id });
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Link href={`/restaurant/${restaurant.id}`} className="block">
                     <div className="flex gap-4">
                       <img
                         src={`https://picsum.photos/seed/${restaurant.id}/120/120`}
                         alt={restaurant.name}
                         className="w-24 h-24 rounded-lg object-cover"
                       />
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 pr-8">
                         <h3 className="font-semibold text-lg mb-1">{restaurant.name}</h3>
                         {restaurant.nameJa && (
                           <p className="text-sm text-muted-foreground mb-2">{restaurant.nameJa}</p>
@@ -133,8 +156,8 @@ export default function Bookmarks() {
                         </div>
                       </div>
                     </div>
-                  </Card>
-                </Link>
+                  </Link>
+                </Card>
               );
             })}
           </div>
