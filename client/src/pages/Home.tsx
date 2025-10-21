@@ -9,7 +9,9 @@ import { APP_TITLE } from "@/const";
 export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const { data: videos, isLoading } = trpc.videos.list.useQuery();
+  const { data: bookmarks } = trpc.bookmarks.list.useQuery();
   const bookmarkMutation = trpc.bookmarks.add.useMutation();
+  const utils = trpc.useUtils();
 
   const handleScroll = (direction: "up" | "down") => {
     if (!videos) return;
@@ -30,7 +32,20 @@ export default function Home() {
   });
 
   const handleBookmark = (restaurantId: string) => {
-    bookmarkMutation.mutate({ restaurantId });
+    // Check if already bookmarked
+    const isAlreadyBookmarked = bookmarks?.some(b => b.bookmark.restaurantId === restaurantId);
+    if (isAlreadyBookmarked) {
+      return; // Prevent duplicate bookmarks
+    }
+    
+    bookmarkMutation.mutate(
+      { restaurantId },
+      {
+        onSuccess: () => {
+          utils.bookmarks.list.invalidate();
+        }
+      }
+    );
   };
 
   if (isLoading) {
@@ -110,7 +125,11 @@ export default function Home() {
             className="h-12 w-12 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
             onClick={() => handleBookmark(restaurant.id)}
           >
-            <Bookmark className="h-6 w-6" />
+            <Bookmark className={`h-6 w-6 ${
+              bookmarks?.some(b => b.bookmark.restaurantId === restaurant.id) 
+                ? 'fill-primary text-primary' 
+                : ''
+            }`} />
           </Button>
           <span className="text-white text-xs mt-1 font-medium">Save</span>
         </div>
