@@ -109,11 +109,24 @@ export async function getRestaurantsByVeganLevel(level: string): Promise<Restaur
 }
 
 // Video queries
-export async function getAllVideos(): Promise<Video[]> {
+export async function getAllVideos() {
   const db = await getDb();
   if (!db) return [];
   
-  return await db.select().from(videos).orderBy(desc(videos.createdAt));
+  const videoList = await db.select().from(videos).orderBy(desc(videos.createdAt));
+  
+  // Fetch restaurant data for each video
+  const videosWithRestaurants = await Promise.all(
+    videoList.map(async (video) => {
+      const restaurant = await getRestaurantById(video.restaurantId);
+      return {
+        ...video,
+        restaurant: restaurant || null,
+      };
+    })
+  );
+  
+  return videosWithRestaurants;
 }
 
 export async function getVideosByRestaurantId(restaurantId: string): Promise<Video[]> {

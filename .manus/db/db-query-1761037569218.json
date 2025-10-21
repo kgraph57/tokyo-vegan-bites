@@ -1,0 +1,34 @@
+{
+  "query": "SELECT id, name FROM restaurants;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3hauUFtLVaKADXU.root --database cUu6b6NfmyyzYa5EMT3xiE --execute SELECT id, name FROM restaurants;",
+  "rows": [
+    {
+      "id": "8ablish-omotesando",
+      "name": "8ablish"
+    },
+    {
+      "id": "ain-soph-journey",
+      "name": "Ain Soph. Journey"
+    },
+    {
+      "id": "loving-hut-ikebukuro",
+      "name": "Loving Hut Ikebukuro"
+    },
+    {
+      "id": "nagi-shokudo-shibuya",
+      "name": "Nagi Shokudo"
+    },
+    {
+      "id": "saido-shibuya",
+      "name": "Saido"
+    },
+    {
+      "id": "ts-tantan-tokyo",
+      "name": "T's TanTan"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\n8ablish-omotesando\t8ablish\nain-soph-journey\tAin Soph. Journey\nloving-hut-ikebukuro\tLoving Hut Ikebukuro\nnagi-shokudo-shibuya\tNagi Shokudo\nsaido-shibuya\tSaido\nts-tantan-tokyo\tT's TanTan\n",
+  "stderr": "",
+  "execution_time_ms": 1887
+}
