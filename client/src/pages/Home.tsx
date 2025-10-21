@@ -77,9 +77,12 @@ export default function Home() {
               {/* Video/Image Placeholder */}
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/60">
                 <img
-                  src={video.thumbnail || 'https://picsum.photos/seed/' + video.id + '/400/600'}
+                  src={video.thumbnail || '/images/placeholder.jpg'}
                   alt={video.title || restaurant.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://picsum.photos/seed/' + video.id + '/400/600';
+                  }}
                 />
               </div>
 
