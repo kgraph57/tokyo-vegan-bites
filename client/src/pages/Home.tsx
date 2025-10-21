@@ -59,9 +59,11 @@ export default function Home() {
                 <Bookmark className="h-5 w-5" />
               </Button>
             </Link>
-            <Button variant="ghost" size="icon">
-              <Menu className="h-5 w-5" />
-            </Button>
+            <Link href="/browse">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

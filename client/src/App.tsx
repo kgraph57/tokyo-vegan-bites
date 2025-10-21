@@ -8,11 +8,13 @@ import Home from "./pages/Home";
 import RestaurantDetail from "./pages/RestaurantDetail";
 import Explore from "./pages/Explore";
 import Bookmarks from "./pages/Bookmarks";
+import Browse from "./pages/Browse";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/browse"} component={Browse} />
       <Route path={"/explore"} component={Explore} />
       <Route path={"/restaurant/:id"} component={RestaurantDetail} />
       <Route path={"/bookmarks"} component={Bookmarks} />
