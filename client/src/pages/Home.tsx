@@ -255,8 +255,8 @@ export default function Home() {
 
       {/* Swipe Hint (shown on first load) */}
       {currentIndex === 0 && (
-        <div className="absolute bottom-40 left-1/2 -translate-x-1/2 z-10 animate-bounce">
-          <div className="text-white/60 text-sm font-medium flex items-center gap-2">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 animate-bounce">
+          <div className="px-4 py-2 rounded-full bg-black/50 backdrop-blur-sm border border-white/20 text-white text-sm font-medium flex items-center gap-2">
             <ChevronUp className="h-4 w-4" />
             Swipe up to discover more
             <ChevronDown className="h-4 w-4" />
