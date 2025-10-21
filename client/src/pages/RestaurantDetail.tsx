@@ -2,13 +2,19 @@ import { useRoute, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, MapPin, Clock, Phone, Globe, Instagram, Heart, ExternalLink, Share2 } from "lucide-react";
+import { ArrowLeft, MapPin, Clock, Phone, Globe, Instagram, Heart, ExternalLink, Share2, Star } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { toast } from "sonner";
+import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function RestaurantDetail() {
   const [, params] = useRoute("/restaurant/:id");
   const restaurantId = params?.id || "";
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [comment, setComment] = useState("");
   
   const { user } = useAuth();
   const { data: restaurant, isLoading } = trpc.restaurants.getById.useQuery({ id: restaurantId });
@@ -36,6 +42,31 @@ export default function RestaurantDetail() {
       toast.success("Removed from bookmarks");
     },
   });
+
+  const addReview = trpc.reviews.add.useMutation({
+    onSuccess: () => {
+      utils.reviews.getByRestaurantId.invalidate();
+      toast.success("Review submitted!");
+      setShowReviewForm(false);
+      setRating(0);
+      setComment("");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to submit review");
+    },
+  });
+
+  const handleSubmitReview = () => {
+    if (!user) {
+      toast.error("Please log in to submit a review");
+      return;
+    }
+    if (rating === 0) {
+      toast.error("Please select a rating");
+      return;
+    }
+    addReview.mutate({ restaurantId, rating, comment: comment || undefined });
+  };
 
   const handleBookmarkToggle = () => {
     if (!user) {
@@ -317,38 +348,164 @@ export default function RestaurantDetail() {
           </div>
         )}
 
-        {/* Reviews */}
-        {reviews && reviews.length > 0 && (
-          <div>
-            <h3 className="font-semibold mb-3">Reviews</h3>
+        {/* Reviews Section */}
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="font-semibold text-lg">Reviews</h3>
+              {reviews && reviews.length > 0 && (
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }).map((_, i) => {
+                      const avgRating = reviews.reduce((acc, r) => acc + r.review.rating, 0) / reviews.length;
+                      return (
+                        <Star
+                          key={i}
+                          className={`h-4 w-4 ${i < Math.round(avgRating) ? 'fill-yellow-500 text-yellow-500' : 'text-muted'}`}
+                        />
+                      );
+                    })}
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {(reviews.reduce((acc, r) => acc + r.review.rating, 0) / reviews.length).toFixed(1)} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
+                  </span>
+                </div>
+              )}
+            </div>
+            <Button
+              onClick={() => {
+                if (!user) {
+                  toast.error("Please log in to write a review");
+                  return;
+                }
+                setShowReviewForm(!showReviewForm);
+              }}
+              variant={showReviewForm ? "outline" : "default"}
+              size="sm"
+            >
+              {showReviewForm ? "Cancel" : "Write a Review"}
+            </Button>
+          </div>
+
+          {/* Review Form */}
+          {showReviewForm && (
+            <Card className="p-4 mb-4 border-2 border-primary/20">
+              <h4 className="font-semibold mb-3">Share your experience</h4>
+              
+              {/* Star Rating */}
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-2 block">Rating</label>
+                <div className="flex gap-1">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setRating(i + 1)}
+                      onMouseEnter={() => setHoverRating(i + 1)}
+                      onMouseLeave={() => setHoverRating(0)}
+                      className="transition-transform hover:scale-110"
+                    >
+                      <Star
+                        className={`h-8 w-8 ${i < (hoverRating || rating) ? 'fill-yellow-500 text-yellow-500' : 'text-muted'}`}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Comment */}
+              <div className="mb-4">
+                <label className="text-sm font-medium mb-2 block">Comment (optional)</label>
+                <Textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Tell us about your experience..."
+                  className="min-h-[100px]"
+                  maxLength={500}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {comment.length}/500 characters
+                </p>
+              </div>
+
+              <Button
+                onClick={handleSubmitReview}
+                disabled={rating === 0 || addReview.isPending}
+                className="w-full"
+              >
+                {addReview.isPending ? "Submitting..." : "Submit Review"}
+              </Button>
+            </Card>
+          )}
+
+          {/* Reviews List */}
+          {reviews && reviews.length > 0 ? (
             <div className="space-y-3">
               {reviews.map((review) => (
-                <Card key={review.review.id} className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-sm font-medium text-primary">
-                        {review.user?.name?.charAt(0) || '?'}
+                <Card key={review.review.id} className="p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-base font-semibold text-primary">
+                        {review.user?.name?.charAt(0).toUpperCase() || '?'}
                       </span>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{review.user?.name || 'Anonymous'}</p>
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <span key={i} className={i < review.review.rating ? 'text-yellow-500' : 'text-muted'}>
-                            ★
-                          </span>
-                        ))}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium">{review.user?.name || 'Anonymous'}</p>
+                        <div className="flex gap-0.5">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={`h-4 w-4 ${i < review.review.rating ? 'fill-yellow-500 text-yellow-500' : 'text-muted'}`}
+                            />
+                          ))}
+                        </div>
                       </div>
+                      {review.review.comment && (
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          {review.review.comment}
+                        </p>
+                      )}
+                      {review.review.createdAt && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {new Date(review.review.createdAt).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                      )}
                     </div>
                   </div>
-                  {review.review.comment && (
-                    <p className="text-sm text-muted-foreground">{review.review.comment}</p>
-                  )}
                 </Card>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            !showReviewForm && (
+              <Card className="p-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
+                  <Star className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h4 className="font-semibold mb-2">No reviews yet</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Be the first to share your experience!
+                </p>
+                <Button
+                  onClick={() => {
+                    if (!user) {
+                      toast.error("Please log in to write a review");
+                      return;
+                    }
+                    setShowReviewForm(true);
+                  }}
+                  size="sm"
+                >
+                  Write the First Review
+                </Button>
+              </Card>
+            )
+          )}
+        </div>
       </div>
     </div>
   );

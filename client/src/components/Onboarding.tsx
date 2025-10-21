@@ -50,177 +50,170 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     onComplete(selectedPreferences);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-primary/20 via-background to-primary/10 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        {/* Step 1: Welcome */}
-        {step === 1 && (
-          <div className="text-center space-y-6 animate-in fade-in duration-500">
-            <div className="space-y-2">
-              <h1 className="text-4xl font-bold text-foreground">
+  // Step 1: Cinematic Welcome with Tokyo Tower
+  if (step === 1) {
+    return (
+      <div className="fixed inset-0 z-50 overflow-hidden">
+        {/* Background Image with Cinematic Effects */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-out"
+          style={{
+            backgroundImage: 'url(/images/tokyo-night.jpg)',
+            backgroundPosition: 'center center',
+            transform: 'scale(1.1)',
+            animation: 'slowZoom 20s ease-out forwards'
+          }}
+        />
+        {/* Cinematic Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+        
+        {/* Content */}
+        <div className="relative h-full flex flex-col items-center justify-center p-8 text-center">
+          <div className="max-w-3xl space-y-8">
+            {/* Animated Title */}
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+              <h1 className="text-6xl md:text-8xl font-bold text-white mb-2 tracking-tight leading-tight">
                 Welcome to
               </h1>
-              <h2 className="text-5xl font-bold bg-gradient-to-r from-primary to-green-600 bg-clip-text text-transparent">
+              <h2 className="text-6xl md:text-8xl font-bold mb-6 tracking-tight leading-tight bg-gradient-to-r from-green-400 via-emerald-400 to-green-500 bg-clip-text text-transparent animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-200">
                 Tokyo Vegan Bites
               </h2>
             </div>
             
-            <div className="relative w-full h-64 rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-green-400 to-primary">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <div className="text-8xl mb-4">🌱</div>
-                  <p className="text-2xl font-bold">Vegan & Delicious</p>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-lg text-muted-foreground">
-              Discover the best vegan and vegetarian restaurants in Tokyo
+            {/* Subtitle */}
+            <p className="text-2xl md:text-3xl text-white/95 font-light leading-relaxed max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-500">
+              Discover the best vegan and vegetarian restaurants
+              <br className="hidden md:block" />
+              <span className="block mt-2">in the heart of Tokyo</span>
             </p>
-
-            <Button
-              size="lg"
-              className="w-full text-lg font-semibold"
-              onClick={handleNext}
-            >
-              Get Started
-            </Button>
-          </div>
-        )}
-
-        {/* Step 2: Preferences */}
-        {step === 2 && (
-          <div className="space-y-6 animate-in fade-in duration-500">
-            <div className="text-center space-y-2">
-              <h2 className="text-3xl font-bold text-foreground">
-                What are your dietary preferences?
-              </h2>
-              <p className="text-muted-foreground">
-                Select all that apply (you can change this later)
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {preferences.map((pref) => {
-                const isSelected = selectedPreferences.includes(pref.id);
-                return (
-                  <Card
-                    key={pref.id}
-                    className={`p-4 cursor-pointer transition-all duration-300 ${
-                      isSelected
-                        ? "ring-2 ring-primary shadow-lg scale-105"
-                        : "hover:shadow-md hover:scale-102"
-                    }`}
-                    onClick={() => togglePreference(pref.id)}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                          isSelected
-                            ? "bg-primary border-primary"
-                            : "border-muted-foreground"
-                        }`}
-                      >
-                        {isSelected && <Check className="h-4 w-4 text-white" />}
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">{pref.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {pref.description}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
-            </div>
-
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                size="lg"
-                className="flex-1"
-                onClick={() => setStep(1)}
+            
+            {/* CTA Button */}
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-700">
+              <Button 
+                onClick={handleNext} 
+                size="lg" 
+                className="mt-12 px-16 py-8 text-xl font-semibold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-2xl shadow-green-500/50 transition-all duration-300 hover:scale-105 hover:shadow-green-500/70"
               >
-                Back
+                Get Started
               </Button>
-              <Button
-                size="lg"
-                className="flex-1"
-                onClick={handleNext}
-                disabled={selectedPreferences.length === 0}
-              >
-                Continue
-              </Button>
+            </div>
+            
+            {/* Progress Indicators */}
+            <div className="flex justify-center gap-3 mt-12 animate-in fade-in duration-1000 delay-1000">
+              <div className="h-2 w-12 rounded-full bg-green-400 shadow-lg shadow-green-400/50"></div>
+              <div className="h-2 w-12 rounded-full bg-white/30"></div>
+              <div className="h-2 w-12 rounded-full bg-white/30"></div>
             </div>
           </div>
-        )}
-
-        {/* Step 3: Ready */}
-        {step === 3 && (
-          <div className="text-center space-y-6 animate-in fade-in duration-500">
-            <div className="space-y-2">
-              <div className="text-6xl mb-4">🎉</div>
-              <h2 className="text-3xl font-bold text-foreground">
-                You're all set!
-              </h2>
-              <p className="text-muted-foreground">
-                We'll show you restaurants that match your preferences
-              </p>
-            </div>
-
-            <Card className="p-4 bg-primary/5">
-              <h3 className="font-semibold mb-2">Your preferences:</h3>
-              <div className="flex flex-wrap gap-2">
-                {selectedPreferences.map((prefId) => {
-                  const pref = preferences.find((p) => p.id === prefId);
-                  return (
-                    <span
-                      key={prefId}
-                      className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-sm font-medium"
-                    >
-                      {pref?.title}
-                    </span>
-                  );
-                })}
-              </div>
-            </Card>
-
-            <div className="flex flex-col gap-3">
-              <Button
-                size="lg"
-                className="w-full text-lg font-semibold"
-                onClick={handleComplete}
-              >
-                Start Exploring
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setStep(2)}
-              >
-                Change preferences
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Progress indicator */}
-        <div className="flex justify-center gap-2 mt-6">
-          {[1, 2, 3].map((s) => (
-            <div
-              key={s}
-              className={`h-2 rounded-full transition-all ${
-                s === step
-                  ? "w-8 bg-primary"
-                  : s < step
-                  ? "w-2 bg-primary/50"
-                  : "w-2 bg-muted"
-              }`}
-            />
-          ))}
         </div>
+        
+        {/* Vignette Effect */}
+        <div className="absolute inset-0 pointer-events-none" style={{
+          boxShadow: 'inset 0 0 200px rgba(0,0,0,0.8)'
+        }} />
       </div>
+    );
+  }
+
+  // Step 2: Food Preferences
+  if (step === 2) {
+    return (
+      <div className="fixed inset-0 z-50 bg-gradient-to-br from-primary/20 via-background to-primary/10 flex items-center justify-center p-4">
+        <Card className="max-w-md w-full p-8 space-y-6 animate-in fade-in duration-500">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-bold text-foreground">
+              What are your dietary preferences?
+            </h2>
+            <p className="text-muted-foreground">
+              Select all that apply (you can choose multiple)
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            {preferences.map((pref) => (
+              <Card
+                key={pref.id}
+                className={`p-4 cursor-pointer transition-all hover:scale-105 ${
+                  selectedPreferences.includes(pref.id)
+                    ? "ring-2 ring-primary bg-primary/10"
+                    : "hover:bg-accent"
+                }`}
+                onClick={() => togglePreference(pref.id)}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      selectedPreferences.includes(pref.id)
+                        ? "bg-primary border-primary"
+                        : "border-muted-foreground"
+                    }`}
+                  >
+                    {selectedPreferences.includes(pref.id) && (
+                      <Check className="h-4 w-4 text-white" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg">{pref.title}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {pref.description}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+
+          <Button
+            onClick={handleNext}
+            size="lg"
+            className="w-full"
+            disabled={selectedPreferences.length === 0}
+          >
+            Continue
+          </Button>
+
+          <div className="flex justify-center gap-2">
+            <div className="h-2 w-8 rounded-full bg-muted"></div>
+            <div className="h-2 w-8 rounded-full bg-primary"></div>
+            <div className="h-2 w-8 rounded-full bg-muted"></div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Step 3: All Set
+  return (
+    <div className="fixed inset-0 z-50 bg-gradient-to-br from-primary/20 via-background to-primary/10 flex items-center justify-center p-4">
+      <Card className="max-w-md w-full p-8 text-center space-y-6 animate-in fade-in duration-500">
+        <div className="text-6xl mb-4">✨</div>
+        <h2 className="text-3xl font-bold text-foreground">You're all set!</h2>
+        <p className="text-muted-foreground text-lg">
+          We'll show you restaurants that match your preferences:
+        </p>
+        <div className="flex flex-wrap gap-2 justify-center">
+          {selectedPreferences.map((pref) => {
+            const preference = preferences.find((p) => p.id === pref);
+            return (
+              <span
+                key={pref}
+                className="px-4 py-2 bg-primary/20 text-primary rounded-full font-medium"
+              >
+                {preference?.title}
+              </span>
+            );
+          })}
+        </div>
+        <Button onClick={handleComplete} size="lg" className="w-full">
+          Start Exploring
+        </Button>
+        <div className="flex justify-center gap-2">
+          <div className="h-2 w-8 rounded-full bg-muted"></div>
+          <div className="h-2 w-8 rounded-full bg-muted"></div>
+          <div className="h-2 w-8 rounded-full bg-primary"></div>
+        </div>
+      </Card>
     </div>
   );
 }

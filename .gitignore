@@ -105,3 +105,9 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+data/db.sqlite
+data/db.sqlite-shm
+data/db.sqlite-wal
+
+# Vercel
+.vercel/
