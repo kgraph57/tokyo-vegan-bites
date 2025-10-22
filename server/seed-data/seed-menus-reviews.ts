@@ -1,4 +1,5 @@
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { menuItems as menuItemsTable, reviews as reviewsTable, users } from "../../drizzle/schema";
 import { menuItems, reviews } from "./menus-and-reviews";
 
@@ -77,14 +78,16 @@ async function seedMenusAndReviews() {
   console.log(`📊 Total menu items to seed: ${menuItems.length}`);
   console.log(`📊 Total reviews to seed: ${reviews.length}`);
 
-  const db = drizzle(process.env.DATABASE_URL);
+  const client = postgres(process.env.DATABASE_URL);
+  const db = drizzle(client);
 
   try {
     // First, create sample users
     console.log("\n👥 Creating sample users...");
     for (const user of sampleUsers) {
       try {
-        await db.insert(users).values(user).onDuplicateKeyUpdate({
+        await db.insert(users).values(user).onConflictDoUpdate({
+          target: users.id,
           set: {
             name: user.name,
             email: user.email,
@@ -109,7 +112,8 @@ async function seedMenusAndReviews() {
           await db.insert(menuItemsTable).values({
             ...item,
             createdAt: new Date(),
-          }).onDuplicateKeyUpdate({
+          }).onConflictDoUpdate({
+            target: menuItemsTable.id,
             set: {
               name: item.name,
               nameJa: item.nameJa,
@@ -144,7 +148,8 @@ async function seedMenusAndReviews() {
           await db.insert(reviewsTable).values({
             ...review,
             createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random date within last 30 days
-          }).onDuplicateKeyUpdate({
+          }).onConflictDoUpdate({
+            target: reviewsTable.id,
             set: {
               rating: review.rating,
               comment: review.comment,

@@ -1,4 +1,5 @@
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import { restaurants } from "../../drizzle/schema";
 import { extendedRestaurants } from "./restaurants-extended";
 
@@ -16,7 +17,8 @@ async function seedRestaurants() {
   console.log("🌱 Starting restaurant data seeding...");
   console.log(`📊 Total restaurants to seed: ${extendedRestaurants.length}`);
 
-  const db = drizzle(process.env.DATABASE_URL);
+  const client = postgres(process.env.DATABASE_URL);
+  const db = drizzle(client);
 
   try {
     // Insert restaurants in batches to avoid overwhelming the database
@@ -28,7 +30,8 @@ async function seedRestaurants() {
       
       for (const restaurant of batch) {
         try {
-          await db.insert(restaurants).values(restaurant).onDuplicateKeyUpdate({
+          await db.insert(restaurants).values(restaurant).onConflictDoUpdate({
+            target: restaurants.id,
             set: {
               name: restaurant.name,
               nameJa: restaurant.nameJa,
